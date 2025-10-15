@@ -12,7 +12,8 @@ def get_insta_timestamp(url: str) -> str:
     print(postid)
     L = instaloader.Instaloader(quiet=True)
     post = instaloader.Post.from_shortcode(L.context, postid)
-    return post.date_utc
+    readable = post.date_utc.strftime('%Y-%m-%d %H:%M:%S UTC')
+    return readable
 
 def get_tiktok_timestamp(url: str) -> str:
     match = re.search(r"/video/(\d+)", url)

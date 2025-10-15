@@ -44,4 +44,4 @@ if st.session_state.timestamp is None and st.session_state.platform == 'instagra
             st.error("Invalid UNIX timestamp.")
 
 if st.session_state.timestamp:
-    st.success(f"Post Timestamp in UTC: {st.session_state.timestamp}")
+    st.success(f"Post Timestamp: {st.session_state.timestamp}")
