@@ -9,6 +9,7 @@ st.write("Enter an Instagram or TikTok post URL to find out when it was posted."
 
 url = st.text_input("Post URL", placeholder="https://www.instagram.com/p/ABC123xyz/")
 
+st.session_state.clear()
 if 'timestamp' not in st.session_state:
     st.session_state.timestamp = None
 if 'unix' not in st.session_state:
