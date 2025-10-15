@@ -50,7 +50,7 @@ if st.session_state.timestamp is None and st.session_state.platform == 'instagra
     st.session_state.unix = st.text_input("UNIX Timestamp", value=st.session_state.unix, placeholder="1697059200")
     if st.button("Convert Unix"):
         try:
-            timestamp = datetime.fromtimestamp(st.session_state.unix, tz=timezone.utc)
+            timestamp = int(datetime.fromtimestamp(st.session_state.unix, tz=timezone.utc))
             readable = timestamp.astimezone(ZoneInfo("America/New_York")).strftime('%Y-%m-%d %H:%M:%S %Z')
             st.session_state.timestamp = readable
         except ValueError:
