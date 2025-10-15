@@ -1,4 +1,5 @@
 import streamlit as st
+from datetime import datetime, timezone
 from get_timestamp import get_insta_timestamp, get_tiktok_timestamp
 
 st.set_page_config(page_title="Post Timestamp Finder", page_icon="🕒")
@@ -12,15 +13,24 @@ if st.button("Get Timestamp"):
     if not url:
         st.error("Please enter a valid Instagram or TikTok post URL.")
     else:
-        try:
+        with st.spinner("Fetching post timestamp..."):
             if 'instagram' in url:
-                timestamp = get_insta_timestamp(url)
+                try:
+                    timestamp = get_insta_timestamp(url)
+                except Exception as e:
+                    st.error(f"""Error fetching Instagram timestamp. Please try again in a few moments, or follow these steps to extract the timestamp manually:
+                             1. Click on this link: view-source:{url}
+                             2. Ctrl+F for "taken_at"
+                             3. Paste the number after "taken_at", called a Unix timestamp, here:
+                             """)
+                    unix = st.text_input("UNIX Timestamp", placeholder="1697059200")
+                    if unix:
+                        try: timestamp = datetime.fromtimestamp(int(unix), tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+                        except ValueError: st.error("Invalid UNIX timestamp.")
+                    timestamp = None
             elif 'tiktok' in url:
                 timestamp = get_tiktok_timestamp(url)
             if timestamp:
                 st.success(f"Post Timestamp in UTC: {timestamp}")
             else:
                 st.error("Could not retrieve the timestamp.")
-
-        except Exception as e:
-            st.error(f"Network error: {e}")
