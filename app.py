@@ -1,6 +1,7 @@
 import streamlit as st
 from datetime import datetime, timezone
 from get_timestamp import get_insta_timestamp, get_tiktok_timestamp
+from zoneinfo import ZoneInfo
 
 st.set_page_config(page_title="Post Timestamp Finder", page_icon="🕒")
 
@@ -25,7 +26,7 @@ if st.button("Get Timestamp"):
         st.session_state.unix = ''
     if 'platform' not in st.session_state:
         st.session_state.platform = ''
-
+        
     # Identify platform and fetch timestamp
     if not url:
         st.error("Please enter a valid Instagram or TikTok post URL.")
@@ -49,7 +50,9 @@ if st.session_state.timestamp is None and st.session_state.platform == 'instagra
     st.session_state.unix = st.text_input("UNIX Timestamp", value=st.session_state.unix, placeholder="1697059200")
     if st.button("Convert Unix"):
         try:
-            st.session_state.timestamp = datetime.fromtimestamp(int(st.session_state.unix), tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+            timestamp = datetime.fromtimestamp(st.session_state.unix, tz=timezone.utc)
+            readable = timestamp.astimezone(ZoneInfo("America/New_York")).strftime('%Y-%m-%d %H:%M:%S %Z')
+            st.session_state.timestamp = readable
         except ValueError:
             st.error("Invalid UNIX timestamp.")
 
