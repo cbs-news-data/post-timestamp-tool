@@ -27,6 +27,5 @@ def get_tiktok_timestamp(url: str) -> str:
     first_31_bits = as_binary[:31]   # First 31 bits
     timestamp = int(first_31_bits, 2)
 
-    # 3️⃣ Convert UNIX timestamp to human-readable date
     readable = datetime.fromtimestamp(timestamp, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
     return readable
