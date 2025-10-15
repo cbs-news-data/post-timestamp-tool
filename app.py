@@ -26,8 +26,11 @@ if st.button("Get Timestamp"):
                     unix = st.text_input("UNIX Timestamp", placeholder="1697059200")
                     if st.button ("Convert Unix"):
                         if unix:
-                            try: timestamp = datetime.fromtimestamp(int(unix), tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
-                            except ValueError: st.error("Invalid UNIX timestamp.")
+                            try: 
+                                timestamp = datetime.fromtimestamp(int(unix), tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+                                st.success(f"Post Timestamp: {timestamp}")
+                            except ValueError: 
+                                st.error("Invalid UNIX timestamp.")
                     timestamp = None
             elif 'tiktok' in url:
                 timestamp = get_tiktok_timestamp(url)
