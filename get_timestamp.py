@@ -3,19 +3,31 @@ import re
 from datetime import datetime, timezone
 import instaloader
 from zoneinfo import ZoneInfo
+from playwright.sync_api import sync_playwright
 
 def get_insta_timestamp(url: str) -> str:
-    postid = re.search(r"(?:p|reel|tv)/([A-Za-z0-9_-]+)", url)
-    if postid:
-        postid = postid.group(1)
-    else:
-        return None
-    print(postid)
-    L = instaloader.Instaloader(quiet=True)
-    post = instaloader.Post.from_shortcode(L.context, postid)
-    timestamp = post.date_utc
-    readable = timestamp.astimezone(ZoneInfo("America/New_York")).strftime('%Y-%m-%d %H:%M:%S %Z')
-    return readable
+    try: 
+        postid = re.search(r"(?:p|reel|tv)/([A-Za-z0-9_-]+)", url)
+        if postid:
+            postid = postid.group(1)
+            L = instaloader.Instaloader(quiet=True)
+            post = instaloader.Post.from_shortcode(L.context, postid)
+            timestamp = post.date_utc
+            readable = timestamp.astimezone(ZoneInfo("America/New_York")).strftime('%Y-%m-%d %H:%M:%S %Z')
+            return readable
+    except:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)  # headless browser
+            page = browser.new_page()
+            page.goto(url, wait_until="networkidle")
+            html = page.content()
+            browser.close()
+            match = re.search(r'"taken_at":\s?(\d+)', html)
+            if not match:
+                return None
+            timestamp = datetime.fromtimestamp(int(match.group(1)), tz=timezone.utc)
+            readable = timestamp.astimezone(ZoneInfo("America/New_York")).strftime('%Y-%m-%d %H:%M:%S %Z')
+            return readable
 
 def get_tiktok_timestamp(url: str) -> str:
     match = re.search(r"/video/(\d+)", url)
