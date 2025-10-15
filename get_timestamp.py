@@ -2,6 +2,7 @@ import requests
 import re
 from datetime import datetime, timezone
 import instaloader
+from zoneinfo import ZoneInfo
 
 def get_insta_timestamp(url: str) -> str:
     postid = re.search(r"(?:p|reel|tv)/([A-Za-z0-9_-]+)", url)
@@ -12,7 +13,8 @@ def get_insta_timestamp(url: str) -> str:
     print(postid)
     L = instaloader.Instaloader(quiet=True)
     post = instaloader.Post.from_shortcode(L.context, postid)
-    readable = post.date_utc.strftime('%Y-%m-%d %H:%M:%S UTC')
+    timestamp = post.date_utc
+    readable = timestamp.astimezone(ZoneInfo("America/New_York")).strftime('%Y-%m-%d %H:%M:%S %Z')
     return readable
 
 def get_tiktok_timestamp(url: str) -> str:
@@ -26,7 +28,7 @@ def get_tiktok_timestamp(url: str) -> str:
     vid_id_int = int(vid_id)
     as_binary = bin(vid_id_int)[2:]  # Convert to binary string, remove '0b'
     first_31_bits = as_binary[:31]   # First 31 bits
-    timestamp = int(first_31_bits, 2)
-
-    readable = datetime.fromtimestamp(timestamp, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+    unix = int(first_31_bits, 2)
+    timestamp = datetime.fromtimestamp(unix, tz=timezone.utc)
+    readable = timestamp.astimezone(ZoneInfo("America/New_York")).strftime('%Y-%m-%d %H:%M:%S %Z')
     return readable
