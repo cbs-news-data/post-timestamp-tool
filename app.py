@@ -17,7 +17,16 @@ if 'platform' not in st.session_state:
     st.session_state.platform = ''
 
 if st.button("Get Timestamp"):
+    # Reset session state on new search
     st.session_state.clear()
+    if 'timestamp' not in st.session_state:
+        st.session_state.timestamp = None
+    if 'unix' not in st.session_state:
+        st.session_state.unix = ''
+    if 'platform' not in st.session_state:
+        st.session_state.platform = ''
+
+    # Identify platform and fetch timestamp
     if not url:
         st.error("Please enter a valid Instagram or TikTok post URL.")
     else:
