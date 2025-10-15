@@ -19,14 +19,15 @@ if st.button("Get Timestamp"):
                     timestamp = get_insta_timestamp(url)
                 except Exception as e:
                     st.error(f"""Error fetching Instagram timestamp. Please try again in a few moments, or follow these steps to extract the timestamp manually:
-                             1. Click on this link: view-source:{url}
-                             2. Ctrl+F for "taken_at"
-                             3. Paste the number after "taken_at", called a Unix timestamp, here:
+                             \n1. Copy and paste this into a new browser tab: "view-source:{url}"
+                             \n2. Ctrl+F for "taken_at"
+                             \n3. Paste the number after "taken_at", called a Unix timestamp, below:
                              """)
                     unix = st.text_input("UNIX Timestamp", placeholder="1697059200")
-                    if unix:
-                        try: timestamp = datetime.fromtimestamp(int(unix), tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
-                        except ValueError: st.error("Invalid UNIX timestamp.")
+                    if st.button ("Convert Unix"):
+                        if unix:
+                            try: timestamp = datetime.fromtimestamp(int(unix), tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+                            except ValueError: st.error("Invalid UNIX timestamp.")
                     timestamp = None
             elif 'tiktok' in url:
                 timestamp = get_tiktok_timestamp(url)
