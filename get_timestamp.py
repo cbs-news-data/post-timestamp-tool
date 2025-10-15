@@ -1,9 +1,9 @@
-import requests
 import re
 from datetime import datetime, timezone
 import instaloader
 from zoneinfo import ZoneInfo
-from playwright.sync_api import sync_playwright
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 def get_insta_timestamp(url: str) -> str:
     try: 
@@ -16,18 +16,39 @@ def get_insta_timestamp(url: str) -> str:
             readable = timestamp.astimezone(ZoneInfo("America/New_York")).strftime('%Y-%m-%d %H:%M:%S %Z')
             return readable
     except:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)  # headless browser
-            page = browser.new_page()
-            page.goto(url, wait_until="networkidle")
-            html = page.content()
-            browser.close()
+        try:
+            # Configure headless Chrome
+            chrome_options = Options()
+            chrome_options.add_argument("--headless")
+            chrome_options.add_argument("--no-sandbox")
+            chrome_options.add_argument("--disable-dev-shm-usage")
+            chrome_options.add_argument("--disable-gpu")
+            chrome_options.add_argument("--lang=en-US")
+
+            # Initialize driver
+            driver = webdriver.Chrome(options=chrome_options)
+            driver.get(url)
+
+            # Get fully rendered HTML
+            html = driver.page_source
+            driver.quit()
+
+            # Extract Unix timestamp
             match = re.search(r'"taken_at":\s?(\d+)', html)
             if not match:
                 return None
-            timestamp = datetime.fromtimestamp(int(match.group(1)), tz=timezone.utc)
-            readable = timestamp.astimezone(ZoneInfo("America/New_York")).strftime('%Y-%m-%d %H:%M:%S %Z')
+
+            timestamp = int(match.group(1))
+            dt_utc = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+
+            # Convert to Eastern Time
+            dt_est = dt_utc.astimezone(ZoneInfo("America/New_York"))
+            readable = dt_est.strftime('%Y-%m-%d %H:%M:%S %Z')
             return readable
+
+        except Exception as e:
+            print(f"Error fetching Instagram timestamp: {e}")
+            return None
 
 def get_tiktok_timestamp(url: str) -> str:
     match = re.search(r"/video/(\d+)", url)
